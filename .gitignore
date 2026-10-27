@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.env
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# DuckDB temp
+*.duckdb.wal
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.hypothesis/
+
+# Tests and AI-assistant files (kept locally, not part of the submitted codebase)
+AiMix/
+CLAUDE.md
+**/CLAUDE.md
+.claude/
+**/.claude/
+*test*/
+*.test.ts
+*.test.tsx
+test_*.py
+*_test.py
+conftest.py
+coverage/
+.coverage
+htmlcov/
+
+# Local env files (examples are kept)
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*

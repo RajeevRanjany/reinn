@@ -1,0 +1,27 @@
+[project]
+name = "headroom-api"
+version = "0.1.0"
+description = "Headroom: wind forecast risk desk API (FastAPI + DuckDB)"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "N"]
+ignore = ["N812"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+plugins = []
+
+[[tool.mypy.overrides]]
+module = "app.core.*"
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["../AiMix/api_tests"]
+pythonpath = ["."]

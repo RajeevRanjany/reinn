@@ -1,0 +1,3030 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Headroom API",
+    "description": "Point-in-time UK wind forecast accuracy and procurement headroom (Elexon WINDFOR vs FUELHH).",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "Health",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/series": {
+      "get": {
+        "tags": [
+          "forecast"
+        ],
+        "summary": "Series",
+        "operationId": "series_api_v1_series_get",
+        "parameters": [
+          {
+            "name": "horizon_h",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 48,
+              "minimum": 0,
+              "description": "Forecast horizon in hours (0-48)",
+              "default": 24,
+              "title": "Horizon H"
+            },
+            "description": "Forecast horizon in hours (0-48)"
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601; naive = UTC",
+              "title": "Start"
+            },
+            "description": "ISO-8601; naive = UTC"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601, exclusive; naive = UTC",
+              "title": "End"
+            },
+            "description": "ISO-8601, exclusive; naive = UTC"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/decision": {
+      "get": {
+        "tags": [
+          "forecast"
+        ],
+        "summary": "Decision",
+        "operationId": "decision_api_v1_decision_get",
+        "parameters": [
+          {
+            "name": "delivery_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "Delivery day D (local)",
+              "title": "Delivery Date"
+            },
+            "description": "Delivery day D (local)"
+          },
+          {
+            "name": "cutoff_local",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "HH:MM local time on D-1",
+              "title": "Cutoff Local"
+            },
+            "description": "HH:MM local time on D-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accuracy/summary": {
+      "get": {
+        "tags": [
+          "accuracy"
+        ],
+        "summary": "Accuracy Summary",
+        "operationId": "accuracy_summary_api_v1_accuracy_summary_get",
+        "parameters": [
+          {
+            "name": "horizon_h",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 48,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Horizon H"
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "horizon",
+                "decision"
+              ],
+              "type": "string",
+              "default": "horizon",
+              "title": "Mode"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601; naive = UTC",
+              "title": "Start"
+            },
+            "description": "ISO-8601; naive = UTC"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601, exclusive; naive = UTC",
+              "title": "End"
+            },
+            "description": "ISO-8601, exclusive; naive = UTC"
+          },
+          {
+            "name": "cutoff_local",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "HH:MM local time on D-1",
+              "title": "Cutoff Local"
+            },
+            "description": "HH:MM local time on D-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accuracy/by-horizon": {
+      "get": {
+        "tags": [
+          "accuracy"
+        ],
+        "summary": "Accuracy By Horizon",
+        "operationId": "accuracy_by_horizon_api_v1_accuracy_by_horizon_get",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601; naive = UTC",
+              "title": "Start"
+            },
+            "description": "ISO-8601; naive = UTC"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601, exclusive; naive = UTC",
+              "title": "End"
+            },
+            "description": "ISO-8601, exclusive; naive = UTC"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HorizonResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accuracy/by-hour": {
+      "get": {
+        "tags": [
+          "accuracy"
+        ],
+        "summary": "Accuracy By Hour",
+        "operationId": "accuracy_by_hour_api_v1_accuracy_by_hour_get",
+        "parameters": [
+          {
+            "name": "horizon_h",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 48,
+              "minimum": 0,
+              "description": "Forecast horizon in hours (0-48)",
+              "default": 24,
+              "title": "Horizon H"
+            },
+            "description": "Forecast horizon in hours (0-48)"
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601; naive = UTC",
+              "title": "Start"
+            },
+            "description": "ISO-8601; naive = UTC"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601, exclusive; naive = UTC",
+              "title": "End"
+            },
+            "description": "ISO-8601, exclusive; naive = UTC"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HourResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accuracy/by-level": {
+      "get": {
+        "tags": [
+          "accuracy"
+        ],
+        "summary": "Accuracy By Level",
+        "operationId": "accuracy_by_level_api_v1_accuracy_by_level_get",
+        "parameters": [
+          {
+            "name": "horizon_h",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 48,
+              "minimum": 0,
+              "description": "Forecast horizon in hours (0-48)",
+              "default": 24,
+              "title": "Horizon H"
+            },
+            "description": "Forecast horizon in hours (0-48)"
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601; naive = UTC",
+              "title": "Start"
+            },
+            "description": "ISO-8601; naive = UTC"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601, exclusive; naive = UTC",
+              "title": "End"
+            },
+            "description": "ISO-8601, exclusive; naive = UTC"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LevelResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accuracy/distribution": {
+      "get": {
+        "tags": [
+          "accuracy"
+        ],
+        "summary": "Accuracy Distribution",
+        "operationId": "accuracy_distribution_api_v1_accuracy_distribution_get",
+        "parameters": [
+          {
+            "name": "horizon_h",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 48,
+              "minimum": 0,
+              "description": "Forecast horizon in hours (0-48)",
+              "default": 24,
+              "title": "Horizon H"
+            },
+            "description": "Forecast horizon in hours (0-48)"
+          },
+          {
+            "name": "bins",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 5,
+              "default": 30,
+              "title": "Bins"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601; naive = UTC",
+              "title": "Start"
+            },
+            "description": "ISO-8601; naive = UTC"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601, exclusive; naive = UTC",
+              "title": "End"
+            },
+            "description": "ISO-8601, exclusive; naive = UTC"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accuracy/worst-misses": {
+      "get": {
+        "tags": [
+          "accuracy"
+        ],
+        "summary": "Accuracy Worst Misses",
+        "operationId": "accuracy_worst_misses_api_v1_accuracy_worst_misses_get",
+        "parameters": [
+          {
+            "name": "horizon_h",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 48,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Horizon H"
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "horizon",
+                "decision"
+              ],
+              "type": "string",
+              "default": "decision",
+              "title": "Mode"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601; naive = UTC",
+              "title": "Start"
+            },
+            "description": "ISO-8601; naive = UTC"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601, exclusive; naive = UTC",
+              "title": "End"
+            },
+            "description": "ISO-8601, exclusive; naive = UTC"
+          },
+          {
+            "name": "cutoff_local",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "HH:MM local time on D-1",
+              "title": "Cutoff Local"
+            },
+            "description": "HH:MM local time on D-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorstMissesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reliability": {
+      "get": {
+        "tags": [
+          "reliability"
+        ],
+        "summary": "Reliability",
+        "operationId": "reliability_api_v1_reliability_get",
+        "parameters": [
+          {
+            "name": "cutoff_local",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "HH:MM local time on D-1",
+              "title": "Cutoff Local"
+            },
+            "description": "HH:MM local time on D-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReliabilityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/data-quality": {
+      "get": {
+        "tags": [
+          "reliability"
+        ],
+        "summary": "Data Quality",
+        "operationId": "data_quality_api_v1_data_quality_get",
+        "parameters": [
+          {
+            "name": "cutoff_local",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "HH:MM local time on D-1",
+              "title": "Cutoff Local"
+            },
+            "description": "HH:MM local time on D-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataQualityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/export.csv": {
+      "get": {
+        "tags": [
+          "forecast"
+        ],
+        "summary": "Export Csv",
+        "operationId": "export_csv_api_v1_export_csv_get",
+        "parameters": [
+          {
+            "name": "horizon_h",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 48,
+              "minimum": 0,
+              "description": "Forecast horizon in hours (0-48)",
+              "default": 24,
+              "title": "Horizon H"
+            },
+            "description": "Forecast horizon in hours (0-48)"
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601; naive = UTC",
+              "title": "Start"
+            },
+            "description": "ISO-8601; naive = UTC"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO-8601, exclusive; naive = UTC",
+              "title": "End"
+            },
+            "description": "ISO-8601, exclusive; naive = UTC"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActualPoint": {
+        "properties": {
+          "target_time": {
+            "type": "string",
+            "title": "Target Time"
+          },
+          "actual_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Mw"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_time",
+          "actual_mw"
+        ],
+        "title": "ActualPoint"
+      },
+      "ActualsQuality": {
+        "properties": {
+          "expected_periods": {
+            "type": "integer",
+            "title": "Expected Periods"
+          },
+          "present_periods": {
+            "type": "integer",
+            "title": "Present Periods"
+          },
+          "missing": {
+            "items": {
+              "$ref": "#/components/schemas/MissingRun"
+            },
+            "type": "array",
+            "title": "Missing"
+          }
+        },
+        "type": "object",
+        "required": [
+          "expected_periods",
+          "present_periods",
+          "missing"
+        ],
+        "title": "ActualsQuality"
+      },
+      "BandCell": {
+        "properties": {
+          "horizon_bucket": {
+            "type": "string",
+            "title": "Horizon Bucket"
+          },
+          "level_bucket": {
+            "type": "string",
+            "title": "Level Bucket"
+          },
+          "q10": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q10"
+          },
+          "q50": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q50"
+          },
+          "q90": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q90"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          }
+        },
+        "type": "object",
+        "required": [
+          "horizon_bucket",
+          "level_bucket",
+          "q10",
+          "q50",
+          "q90",
+          "n",
+          "source"
+        ],
+        "title": "BandCell"
+      },
+      "BucketBandScore": {
+        "properties": {
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "coverage_p10_p90": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage P10 P90"
+          },
+          "below_p10": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Below P10"
+          },
+          "above_p90": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Above P90"
+          },
+          "pinball_p10": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pinball P10"
+          },
+          "pinball_p50": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pinball P50"
+          },
+          "pinball_p90": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pinball P90"
+          },
+          "horizon_bucket": {
+            "type": "string",
+            "title": "Horizon Bucket"
+          }
+        },
+        "type": "object",
+        "required": [
+          "n",
+          "coverage_p10_p90",
+          "below_p10",
+          "above_p90",
+          "pinball_p10",
+          "pinball_p50",
+          "pinball_p90",
+          "horizon_bucket"
+        ],
+        "title": "BucketBandScore"
+      },
+      "DataQualityResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "actuals": {
+            "$ref": "#/components/schemas/ActualsQuality"
+          },
+          "forecasts": {
+            "$ref": "#/components/schemas/ForecastQuality"
+          },
+          "stale_at_cutoff": {
+            "$ref": "#/components/schemas/StaleBlock"
+          },
+          "ingestion": {
+            "$ref": "#/components/schemas/IngestionQuality"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta",
+          "actuals",
+          "forecasts",
+          "stale_at_cutoff",
+          "ingestion",
+          "notes"
+        ],
+        "title": "DataQualityResponse"
+      },
+      "DayCoverage": {
+        "properties": {
+          "delivery_date": {
+            "type": "string",
+            "title": "Delivery Date"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "coverage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "delivery_date",
+          "n",
+          "coverage"
+        ],
+        "title": "DayCoverage"
+      },
+      "DecisionBandScore": {
+        "properties": {
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "coverage_p10_p90": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage P10 P90"
+          },
+          "below_p10": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Below P10"
+          },
+          "above_p90": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Above P90"
+          },
+          "pinball_p10": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pinball P10"
+          },
+          "pinball_p50": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pinball P50"
+          },
+          "pinball_p90": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pinball P90"
+          },
+          "target_coverage": {
+            "type": "number",
+            "title": "Target Coverage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "n",
+          "coverage_p10_p90",
+          "below_p10",
+          "above_p90",
+          "pinball_p10",
+          "pinball_p50",
+          "pinball_p90",
+          "target_coverage"
+        ],
+        "title": "DecisionBandScore"
+      },
+      "DecisionKpis": {
+        "properties": {
+          "forecast_mwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Mwh"
+          },
+          "p10_mwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P10 Mwh"
+          },
+          "headroom_mwh_p90": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Headroom Mwh P90"
+          },
+          "peak_headroom_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peak Headroom Mw"
+          },
+          "forecast_age_at_cutoff_min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Age At Cutoff Min"
+          },
+          "max_revision_mw_after_cutoff": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Revision Mw After Cutoff"
+          },
+          "net_revision_mw_last_vintage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net Revision Mw Last Vintage"
+          },
+          "actual_mwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Mwh"
+          },
+          "realised_shortfall_mwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Realised Shortfall Mwh"
+          },
+          "share_in_band": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share In Band"
+          }
+        },
+        "type": "object",
+        "required": [
+          "forecast_mwh",
+          "p10_mwh",
+          "headroom_mwh_p90",
+          "peak_headroom_mw",
+          "forecast_age_at_cutoff_min",
+          "max_revision_mw_after_cutoff",
+          "net_revision_mw_last_vintage",
+          "actual_mwh",
+          "realised_shortfall_mwh",
+          "share_in_band"
+        ],
+        "title": "DecisionKpis"
+      },
+      "DecisionPoint": {
+        "properties": {
+          "target_time": {
+            "type": "string",
+            "title": "Target Time"
+          },
+          "publish_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publish Time"
+          },
+          "horizon_h": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Horizon H"
+          },
+          "forecast_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Mw"
+          },
+          "p10_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P10 Mw"
+          },
+          "p50_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P50 Mw"
+          },
+          "p90_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90 Mw"
+          },
+          "headroom_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Headroom Mw"
+          },
+          "horizon_bucket": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Horizon Bucket"
+          },
+          "level_bucket": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level Bucket"
+          },
+          "actual_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Mw"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_time",
+          "publish_time",
+          "horizon_h",
+          "forecast_mw",
+          "p10_mw",
+          "p50_mw",
+          "p90_mw",
+          "headroom_mw",
+          "horizon_bucket",
+          "level_bucket",
+          "actual_mw"
+        ],
+        "title": "DecisionPoint"
+      },
+      "DecisionResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "kpis": {
+            "$ref": "#/components/schemas/DecisionKpis"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionPoint"
+            },
+            "type": "array",
+            "title": "Points"
+          },
+          "actuals": {
+            "items": {
+              "$ref": "#/components/schemas/ActualPoint"
+            },
+            "type": "array",
+            "title": "Actuals"
+          },
+          "later_vintages": {
+            "items": {
+              "$ref": "#/components/schemas/Vintage"
+            },
+            "type": "array",
+            "title": "Later Vintages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta",
+          "kpis",
+          "summary",
+          "points",
+          "actuals",
+          "later_vintages"
+        ],
+        "title": "DecisionResponse"
+      },
+      "DistributionResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "bins": {
+            "items": {
+              "$ref": "#/components/schemas/HistBin"
+            },
+            "type": "array",
+            "title": "Bins"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta",
+          "bins"
+        ],
+        "title": "DistributionResponse"
+      },
+      "ForecastQuality": {
+        "properties": {
+          "vintages": {
+            "type": "integer",
+            "title": "Vintages"
+          },
+          "typical_cadence_h": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Typical Cadence H"
+          },
+          "gap_threshold_h": {
+            "type": "number",
+            "title": "Gap Threshold H"
+          },
+          "publication_gaps": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Publication Gaps"
+          },
+          "off_schedule_vintages": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Off Schedule Vintages"
+          },
+          "resolution_min": {
+            "type": "integer",
+            "title": "Resolution Min"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vintages",
+          "typical_cadence_h",
+          "gap_threshold_h",
+          "publication_gaps",
+          "off_schedule_vintages",
+          "resolution_min"
+        ],
+        "title": "ForecastQuality"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Health": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "db_reachable": {
+            "type": "boolean",
+            "title": "Db Reachable"
+          },
+          "data_version": {
+            "type": "string",
+            "title": "Data Version"
+          },
+          "built_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Built At"
+          },
+          "analysis_start_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analysis Start Utc"
+          },
+          "analysis_end_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analysis End Utc"
+          },
+          "default_cutoff_local": {
+            "type": "string",
+            "title": "Default Cutoff Local"
+          },
+          "delivery_dates": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Delivery Dates"
+          },
+          "last_ingestion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Ingestion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "db_reachable",
+          "data_version",
+          "built_at",
+          "analysis_start_utc",
+          "analysis_end_utc",
+          "default_cutoff_local",
+          "delivery_dates",
+          "last_ingestion"
+        ],
+        "title": "Health"
+      },
+      "HistBin": {
+        "properties": {
+          "lo": {
+            "type": "number",
+            "title": "Lo"
+          },
+          "hi": {
+            "type": "number",
+            "title": "Hi"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lo",
+          "hi",
+          "count"
+        ],
+        "title": "HistBin"
+      },
+      "HorizonResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/HorizonRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta",
+          "rows"
+        ],
+        "title": "HorizonResponse"
+      },
+      "HorizonRow": {
+        "properties": {
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "n_missing": {
+            "type": "integer",
+            "title": "N Missing"
+          },
+          "bias_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bias Mw"
+          },
+          "mae_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mae Mw"
+          },
+          "rmse_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rmse Mw"
+          },
+          "p50_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P50 Abs Mw"
+          },
+          "p90_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90 Abs Mw"
+          },
+          "p99_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P99 Abs Mw"
+          },
+          "nmae": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nmae"
+          },
+          "shortfall_p90_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shortfall P90 Mw"
+          },
+          "mean_actual_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Actual Mw"
+          },
+          "horizon_h": {
+            "type": "integer",
+            "title": "Horizon H"
+          },
+          "baseline_mae_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Mae Mw"
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill"
+          }
+        },
+        "type": "object",
+        "required": [
+          "n",
+          "n_missing",
+          "bias_mw",
+          "mae_mw",
+          "rmse_mw",
+          "p50_abs_mw",
+          "p90_abs_mw",
+          "p99_abs_mw",
+          "nmae",
+          "shortfall_p90_mw",
+          "mean_actual_mw",
+          "horizon_h",
+          "baseline_mae_mw",
+          "skill"
+        ],
+        "title": "HorizonRow"
+      },
+      "HourResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/HourRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta",
+          "rows"
+        ],
+        "title": "HourResponse"
+      },
+      "HourRow": {
+        "properties": {
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "n_missing": {
+            "type": "integer",
+            "title": "N Missing"
+          },
+          "bias_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bias Mw"
+          },
+          "mae_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mae Mw"
+          },
+          "rmse_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rmse Mw"
+          },
+          "p50_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P50 Abs Mw"
+          },
+          "p90_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90 Abs Mw"
+          },
+          "p99_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P99 Abs Mw"
+          },
+          "nmae": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nmae"
+          },
+          "shortfall_p90_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shortfall P90 Mw"
+          },
+          "mean_actual_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Actual Mw"
+          },
+          "hour": {
+            "type": "integer",
+            "title": "Hour"
+          }
+        },
+        "type": "object",
+        "required": [
+          "n",
+          "n_missing",
+          "bias_mw",
+          "mae_mw",
+          "rmse_mw",
+          "p50_abs_mw",
+          "p90_abs_mw",
+          "p99_abs_mw",
+          "nmae",
+          "shortfall_p90_mw",
+          "mean_actual_mw",
+          "hour"
+        ],
+        "title": "HourRow"
+      },
+      "IngestionQuality": {
+        "properties": {
+          "runs": {
+            "type": "integer",
+            "title": "Runs"
+          },
+          "failed_runs": {
+            "type": "integer",
+            "title": "Failed Runs"
+          },
+          "duplicates_dropped": {
+            "type": "integer",
+            "title": "Duplicates Dropped"
+          },
+          "invalid_rows_dropped": {
+            "type": "integer",
+            "title": "Invalid Rows Dropped"
+          }
+        },
+        "type": "object",
+        "required": [
+          "runs",
+          "failed_runs",
+          "duplicates_dropped",
+          "invalid_rows_dropped"
+        ],
+        "title": "IngestionQuality"
+      },
+      "LevelResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/LevelRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta",
+          "rows"
+        ],
+        "title": "LevelResponse"
+      },
+      "LevelRow": {
+        "properties": {
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "n_missing": {
+            "type": "integer",
+            "title": "N Missing"
+          },
+          "bias_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bias Mw"
+          },
+          "mae_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mae Mw"
+          },
+          "rmse_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rmse Mw"
+          },
+          "p50_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P50 Abs Mw"
+          },
+          "p90_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90 Abs Mw"
+          },
+          "p99_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P99 Abs Mw"
+          },
+          "nmae": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nmae"
+          },
+          "shortfall_p90_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shortfall P90 Mw"
+          },
+          "mean_actual_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Actual Mw"
+          },
+          "level": {
+            "type": "string",
+            "title": "Level"
+          }
+        },
+        "type": "object",
+        "required": [
+          "n",
+          "n_missing",
+          "bias_mw",
+          "mae_mw",
+          "rmse_mw",
+          "p50_abs_mw",
+          "p90_abs_mw",
+          "p99_abs_mw",
+          "nmae",
+          "shortfall_p90_mw",
+          "mean_actual_mw",
+          "level"
+        ],
+        "title": "LevelRow"
+      },
+      "Meta": {
+        "properties": {
+          "data_version": {
+            "type": "string",
+            "title": "Data Version"
+          },
+          "analysis_start_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analysis Start Utc"
+          },
+          "analysis_end_utc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analysis End Utc"
+          },
+          "error_sign": {
+            "type": "string",
+            "title": "Error Sign"
+          },
+          "display_timezone": {
+            "type": "string",
+            "title": "Display Timezone"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "data_version",
+          "analysis_start_utc",
+          "analysis_end_utc",
+          "error_sign",
+          "display_timezone"
+        ],
+        "title": "Meta",
+        "description": "Freshness + definitions. Endpoint-specific keys are allowed as extras."
+      },
+      "MetricsBlock": {
+        "properties": {
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "n_missing": {
+            "type": "integer",
+            "title": "N Missing"
+          },
+          "bias_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bias Mw"
+          },
+          "mae_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mae Mw"
+          },
+          "rmse_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rmse Mw"
+          },
+          "p50_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P50 Abs Mw"
+          },
+          "p90_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90 Abs Mw"
+          },
+          "p99_abs_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P99 Abs Mw"
+          },
+          "nmae": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nmae"
+          },
+          "shortfall_p90_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shortfall P90 Mw"
+          },
+          "mean_actual_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Actual Mw"
+          }
+        },
+        "type": "object",
+        "required": [
+          "n",
+          "n_missing",
+          "bias_mw",
+          "mae_mw",
+          "rmse_mw",
+          "p50_abs_mw",
+          "p90_abs_mw",
+          "p99_abs_mw",
+          "nmae",
+          "shortfall_p90_mw",
+          "mean_actual_mw"
+        ],
+        "title": "MetricsBlock"
+      },
+      "MissRow": {
+        "properties": {
+          "target_time": {
+            "type": "string",
+            "title": "Target Time"
+          },
+          "forecast_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Mw"
+          },
+          "actual_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Mw"
+          },
+          "error_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Mw"
+          },
+          "publish_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publish Time"
+          },
+          "horizon_h": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Horizon H"
+          },
+          "is_ramp": {
+            "type": "boolean",
+            "title": "Is Ramp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_time",
+          "forecast_mw",
+          "actual_mw",
+          "error_mw",
+          "publish_time",
+          "horizon_h",
+          "is_ramp"
+        ],
+        "title": "MissRow"
+      },
+      "MissingRun": {
+        "properties": {
+          "start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start"
+          },
+          "periods": {
+            "type": "integer",
+            "title": "Periods"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "periods"
+        ],
+        "title": "MissingRun"
+      },
+      "ReliabilityResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/DecisionBandScore"
+          },
+          "decision_by_day": {
+            "items": {
+              "$ref": "#/components/schemas/DayCoverage"
+            },
+            "type": "array",
+            "title": "Decision By Day"
+          },
+          "all_vintages_by_horizon_bucket": {
+            "items": {
+              "$ref": "#/components/schemas/BucketBandScore"
+            },
+            "type": "array",
+            "title": "All Vintages By Horizon Bucket"
+          },
+          "in_sample_coverage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "In Sample Coverage"
+          },
+          "skill": {
+            "$ref": "#/components/schemas/Skill"
+          },
+          "band_table": {
+            "items": {
+              "$ref": "#/components/schemas/BandCell"
+            },
+            "type": "array",
+            "title": "Band Table"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta",
+          "decision",
+          "decision_by_day",
+          "all_vintages_by_horizon_bucket",
+          "in_sample_coverage",
+          "skill",
+          "band_table"
+        ],
+        "title": "ReliabilityResponse"
+      },
+      "SeriesPoint": {
+        "properties": {
+          "target_time": {
+            "type": "string",
+            "title": "Target Time"
+          },
+          "actual_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Mw"
+          },
+          "forecast_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Mw"
+          },
+          "publish_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publish Time"
+          },
+          "error_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Mw"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_time",
+          "actual_mw",
+          "forecast_mw",
+          "publish_time",
+          "error_mw"
+        ],
+        "title": "SeriesPoint"
+      },
+      "SeriesResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/MetricsBlock"
+          },
+          "n_matched": {
+            "type": "integer",
+            "title": "N Matched"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesPoint"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta",
+          "metrics",
+          "n_matched",
+          "points"
+        ],
+        "title": "SeriesResponse"
+      },
+      "Skill": {
+        "properties": {
+          "forecast_mae_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Mae Mw"
+          },
+          "persistence_mae_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Persistence Mae Mw"
+          },
+          "skill_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Score"
+          },
+          "baseline": {
+            "type": "string",
+            "title": "Baseline"
+          }
+        },
+        "type": "object",
+        "required": [
+          "forecast_mae_mw",
+          "persistence_mae_mw",
+          "skill_score",
+          "baseline"
+        ],
+        "title": "Skill"
+      },
+      "StaleBlock": {
+        "properties": {
+          "threshold_h": {
+            "type": "number",
+            "title": "Threshold H"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/StaleDay"
+            },
+            "type": "array",
+            "title": "Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "threshold_h",
+          "days"
+        ],
+        "title": "StaleBlock"
+      },
+      "StaleDay": {
+        "properties": {
+          "delivery_date": {
+            "type": "string",
+            "title": "Delivery Date"
+          },
+          "vintage_used": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vintage Used"
+          },
+          "age_h": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age H"
+          }
+        },
+        "type": "object",
+        "required": [
+          "delivery_date",
+          "vintage_used",
+          "age_h"
+        ],
+        "title": "StaleDay"
+      },
+      "SummaryResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/MetricsBlock"
+          },
+          "skill_vs_persistence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Vs Persistence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta",
+          "metrics",
+          "skill_vs_persistence"
+        ],
+        "title": "SummaryResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "Vintage": {
+        "properties": {
+          "publish_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publish Time"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/VintagePoint"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "publish_time",
+          "points"
+        ],
+        "title": "Vintage"
+      },
+      "VintagePoint": {
+        "properties": {
+          "target_time": {
+            "type": "string",
+            "title": "Target Time"
+          },
+          "forecast_mw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Mw"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_time",
+          "forecast_mw"
+        ],
+        "title": "VintagePoint"
+      },
+      "WorstMissesResponse": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/MissRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "ramp_vs_non_ramp": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MetricsBlock"
+            },
+            "type": "object",
+            "title": "Ramp Vs Non Ramp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meta",
+          "rows",
+          "ramp_vs_non_ramp"
+        ],
+        "title": "WorstMissesResponse"
+      }
+    }
+  }
+}

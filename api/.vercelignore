@@ -1,0 +1,9 @@
+# Not needed by the deployed API function
+.venv/
+data/raw/
+ingestion/
+scripts/
+Dockerfile
+heroku.yml
+requirements-dev.txt
+pyproject.toml
